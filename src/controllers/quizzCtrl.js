@@ -42,6 +42,31 @@ exports.getOne = async (req, res) => {
     }
 }
 
+exports.getOneSearch = async (req, res) => {
+    const { codigo } = req.params;
+    try {
+        const quizz = await Cuestionario.findOne({
+            where: { codigo: codigo },
+            include: {
+                model: Pregunta,
+                as: "preguntas",
+                attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
+                where: { estado: 'A' },
+                include: {
+                    model: Respuesta,
+                    as: "respuestas",
+                    attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
+                    where: { estado: 'A' },
+                }
+            }
+        });
+        res.json(quizz);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
+
 exports.getAllByUserID = async (req, res) => {
     const { userId } = req.params;
     try {
