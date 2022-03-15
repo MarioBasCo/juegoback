@@ -8,5 +8,6 @@ router.get('/search/:codigo', quizzCtrl.getOneSearch);
 router.get('/usuarios/:userId', quizzCtrl.getAllByUserID);
 router.post('/', quizzCtrl.createCuestionario);
 router.patch('/:cuestionarioId', quizzCtrl.updateParamQuizz);
+router.delete('/:cuestionarioId', quizzCtrl.deleteQuizz);
 
 module.exports = router;

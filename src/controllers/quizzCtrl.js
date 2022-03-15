@@ -22,15 +22,16 @@ exports.getOne = async (req, res) => {
     try {
         const quizz = await Cuestionario.findOne({
             where: { cuestionarioId: cuestionarioId },
+            attributes: { exclude: ['userId', 'estado', 'createdAt', 'updatedAt'] },
             include: {
                 model: Pregunta,
                 as: "preguntas",
-                attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
+                attributes: { exclude: ['preguntaId', 'cuestionarioId', 'estado', 'createdAt', 'updatedAt'] },
                 where: { estado: 'A' },
                 include: {
                     model: Respuesta,
                     as: "respuestas",
-                    attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
+                    attributes: { exclude: ['respuestaId', 'preguntaId', 'estado', 'createdAt', 'updatedAt'] },
                     where: { estado: 'A' },
                 }
             }
@@ -127,4 +128,26 @@ exports.updateParamQuizz = (req, res) => {
     }).catch(err => {
         res.status(500).json(err);
     });
+}
+
+exports.deleteQuizz = async (req, res) => {
+    const { cuestionarioId } = req.params;
+    try {
+        const quizz = await Cuestionario.findByPk(cuestionarioId);
+        if (quizz === null) {
+            res.json({
+                status: false,
+                message: 'Cuestionario no encontrado',
+            });
+        } else {
+            quizz.estado = 'E',
+            quizz.save();
+            res.json({
+                status: true,
+                message: 'Cuestionario eliminado',
+            });
+        }
+    } catch (error) {
+        res.status(500).json(err);
+    }
 }

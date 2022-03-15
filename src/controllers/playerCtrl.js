@@ -47,3 +47,54 @@ exports.getFullPlayerByUserId = async (req, res) => {
         res.status(500).send(error);
     }
 }
+
+exports.updatePlayer = async (req, res) => {
+    const { jugadorId } = req.params;
+    try {
+        const estudiante = await Jugador.findByPk(jugadorId);
+        if (estudiante === null) {
+            res.json({
+                status: false,
+                message: 'Estudiante no encontrado',
+            });
+        } else {
+            const { grupoId, nombre, apellido, player_name } = req.body;
+            estudiante.grupoId = grupoId;
+            estudiante.nombre = nombre;
+            estudiante.apellido = apellido;
+            estudiante.player_name = player_name;
+            estudiante.save();
+            res.json({
+                status: true,
+                message: 'Estudiante actualizado con éxito',
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
+
+
+exports.deletePlayer = async (req, res) => {
+    const { jugadorId } = req.params;
+    try {
+        const estudiante = await Jugador.findByPk(jugadorId);
+        if (estudiante === null) {
+            res.json({
+                status: false,
+                message: 'Estudiante no encontrado',
+            });
+        } else {
+            estudiante.estado = "E";
+            estudiante.save();
+            res.json({
+                status: true,
+                message: 'Estudiante eliminado',
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}

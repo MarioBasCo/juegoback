@@ -4,15 +4,15 @@ const app = express();
 const { sequelize } = require('./models/index');
 const Moment = require('moment-timezone');
 const path = require('path');
-const multer = require('multer');
 Moment().tz('America/Guayaquil').format();
 
 app.set('port', process.env.PORT || 4000);
 
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-// Middlewares
+
 
 app.use("/images", express.static(path.join(__dirname+ '/uploads')));
 

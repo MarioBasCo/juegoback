@@ -116,3 +116,26 @@ exports.editGroup = (req, res) => {
         res.status(500).send(error);
     }
 }
+
+exports.deleteGroup = async (req, res) => {
+    const { grupoId } = req.params;
+    try {
+        const grupo = await Grupo.findByPk(grupoId);
+        if (grupo === null) {
+            res.json({
+                status: false,
+                message: 'Grupo no encontrado',
+            });
+        } else {
+            grupo.estado = "E";
+            grupo.save();
+            res.json({
+                status: true,
+                message: 'Grupo eliminado',
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
