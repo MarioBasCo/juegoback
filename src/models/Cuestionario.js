@@ -7,9 +7,8 @@ module.exports = (sequelize, DataTypes) => {
 
     static associate(models) {
       this.belongsTo(models.Usuario, {as: 'usuario', foreignKey: "userId"});
-      //Cuestionario.belongsTo(models.Usuario);
-      //models.Usuario.hasMany(Cuestionario)
       this.hasMany(models.Pregunta, {as: 'preguntas', foreignKey: "cuestionarioId"})
+      this.hasMany(models.QuizzPlayer, {foreignKey: 'cuestionarioId'})
     }
   }
 

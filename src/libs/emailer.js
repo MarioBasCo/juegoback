@@ -9,6 +9,9 @@ const createTrans = () => {
             user: 'mario.basilio.c@gmail.com', // generated ethereal user
             pass: 'xfugkbpeirqhrrun', // generated ethereal password
         },
+        tls: {
+            rejectUnauthorized: false
+        }
     });
 
     return transport;

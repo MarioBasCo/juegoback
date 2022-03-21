@@ -49,3 +49,27 @@ exports.getAllByQuizzID = async (req, res) => {
         res.status(500).send(error);
     }
 }
+
+exports.deleteQuestion = async (req, res) => {
+    const { preguntaId } = req.params;
+    try {
+        const question = await Pregunta.findByPk(preguntaId);
+        if (question === null) {
+            res.json({
+                status: false,
+                message: 'Pregunta no encontrada',
+            });
+        } else {
+            question.estado = 'E';
+            question.save();
+            await Respuesta.update({ estado : 'E' }, { where : { preguntaId : preguntaId }});
+            res.json({
+                status: true,
+                message: 'Pregunta eliminada con éxito',
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}

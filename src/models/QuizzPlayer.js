@@ -10,10 +10,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      QuizzPlayer.belongsTo(models.Jugador);
-      models.Jugador.hasMany(QuizzPlayer);
-      QuizzPlayer.belongsTo(models.Cuestionario);
-      models.Cuestionario.hasMany(QuizzPlayer);
+      this.hasMany(models.QuestionAnswer, {foreignKey: 'quizzPlayerId', as: 'respuestas'})
+      this.belongsTo(models.Cuestionario, {foreignKey: 'cuestionarioId', as: 'cuestionario'})
     }
   }
   QuizzPlayer.init(
@@ -29,6 +27,14 @@ module.exports = (sequelize, DataTypes) => {
       },
       cuestionarioId: {
         type: DataTypes.INTEGER,
+      },
+      calificacion: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0
+      },
+      comodin: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       },
       estado: {
         type: DataTypes.STRING(1),

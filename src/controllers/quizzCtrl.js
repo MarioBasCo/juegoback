@@ -1,5 +1,6 @@
-const { Cuestionario, Usuario, Pregunta, Respuesta } = require('../models/index');
+const { Cuestionario, Usuario, Pregunta, Respuesta, Sequelize, sequelize } = require('../models/index');
 //const users = await User.findAll();
+const Op = Sequelize.Op;
 
 exports.getAll = async (req, res) => {
     try {
@@ -46,22 +47,41 @@ exports.getOne = async (req, res) => {
 exports.getOneSearch = async (req, res) => {
     const { codigo } = req.params;
     try {
-        const quizz = await Cuestionario.findOne({
-            where: { codigo: codigo },
-            include: {
-                model: Pregunta,
-                as: "preguntas",
-                attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
-                where: { estado: 'A' },
+        const quizz = await Cuestionario.findOne({where: { codigo: codigo }});
+        
+        if (quizz === null) {
+            res.json({
+                status: false,
+                message: 'No se encontró el cuestionario, código incorrecto',
+            });
+        } else {
+            const quizzFull = await Cuestionario.findOne({
+                where: { codigo: codigo },
                 include: {
-                    model: Respuesta,
-                    as: "respuestas",
+                    model: Pregunta,
+                    as: "preguntas",
                     attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
                     where: { estado: 'A' },
-                }
-            }
-        });
-        res.json(quizz);
+                    order: sequelize.random(), limit: quizz.num_preguntas,
+                    include: {
+                        model: Respuesta,
+                        as: "respuestas",
+                        attributes: { exclude: ['valor', 'estado', 'createdAt', 'updatedAt'] },
+                        order: sequelize.random(), limit: await Respuesta.count({
+                            col: 'preguntaId',
+                            where: { preguntaId: "preguntaId" }
+                        }),
+                        where: { estado: 'A' },
+                    }
+                },
+            });
+            res.json({
+                status: true,
+                message: 'cuestionario encontrado',
+                data: quizzFull
+            });
+        }  
+        
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
@@ -72,12 +92,16 @@ exports.getAllByUserID = async (req, res) => {
     const { userId } = req.params;
     try {
         const quizz = await Cuestionario.findAll({
-            where: { userId: userId, estado: 'A' },
-            include: {
+            where: { userId: userId, 
+                estado: {
+                    [Op.not]: 'E'
+                }
+            },
+            /* include: {
                 model: Usuario,
                 as: "usuario",
                 attributes: ["userId", "nombre", "apellido"],
-            }
+            } */
         });
         res.json(quizz);
     } catch (error) {

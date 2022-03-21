@@ -14,6 +14,14 @@ module.exports = {
       cuestionarioId: {
         type: Sequelize.INTEGER,
       },
+      calificacion: {
+        type: Sequelize.FLOAT,
+        defaultValue: 0
+      },
+      comodin: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       estado: {
         type: Sequelize.STRING(1),
         defaultValue: 'A'

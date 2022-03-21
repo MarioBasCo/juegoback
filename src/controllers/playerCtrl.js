@@ -1,4 +1,40 @@
-const { Jugador, Grupo } = require('../models/index');
+const { Jugador, Grupo, sequelize } = require('../models/index');
+
+exports.getPlayerByPlayerName = async (req, res) => {
+    const { player_name } = req.params;
+    
+    try {
+        const player = await Jugador.findOne({
+            attributes: { exclude: ['grupoId', 'estado', 'createdAt', 'updatedAt'] },
+            where: { estado: 'A', player_name: sequelize.where(
+                sequelize.fn('lower', sequelize.col('player_name')), 
+                player_name.toLowerCase()
+              ) },
+            include: {
+                model: Grupo,
+                as: 'grupo',
+                attributes: ['grupoId', "nombre_grupo"],
+                where: { estado: 'A' },
+            }
+        });
+        if (player === null) {
+            res.json({
+                status: false,
+                message: `No se encontró el estudiante con nombre de usuario: ${player_name}`,
+            });
+        } else {
+            res.json({
+                status: true,
+                message: 'Estudiante encontrado',
+                data: player
+            });
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
 
 exports.createPlayer = (req, res) => {
     try {

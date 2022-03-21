@@ -111,7 +111,7 @@ exports.forgotPassword = async (req, res) => {
                 <p>El tiempo de duración del código es: <b>${tiempoExpiracion}</b></p>
             `;
                 
-            emailer.sendMail(user, mensaje, body);
+            await emailer.sendMail(user, mensaje, body);
             
             res.json({
                 status: true,

@@ -1,4 +1,4 @@
-const { sequelize } = require('../models/index');
+const { sequelize, Sequelize } = require('../models/index');
 const { QueryTypes } = require('sequelize');
 const { Grupo, Jugador } = require('../models/index');
 
@@ -36,11 +36,22 @@ exports.getAllByUserID = async (req, res) => {
         AND g.userId = ${userId}
         GROUP BY g.grupoId`;
         
-        const groups = await sequelize.query(sql, { type: QueryTypes.SELECT });
-        /* const groups = await Grupo.findAll({
-            attributes: ["grupoId", "nombre_grupo"],
+        //const groups = await sequelize.query(sql, { type: QueryTypes.SELECT });
+        const groups = await Grupo.findAll({
             where: { userId: userId, estado: 'A' },
-        }); */
+            attributes: {
+                include: [[Sequelize.fn("COUNT", Sequelize.col("jugadores.grupoId")), "estudiantes"]],
+                exclude: ['userId', 'estado', 'createdAt', 'updatedAt']
+            },
+            include: {
+                model: Jugador,
+                as: "jugadores",
+                required: false, 
+                attributes: [],
+                where: { estado: 'A' }
+            },
+            group: ['grupoId'],
+        });
         res.json(groups);
         
     } catch (error) {
@@ -74,14 +85,11 @@ exports.getOneByID = async (req, res) => {
     const { grupoId } = req.params;
     const group = await Grupo.findOne({ where: { grupoId: grupoId } });
     if (group == null) {
-        //console.log('Not found!');
         res.json({
             status: false,
             message: 'Grupo no encontrado'
         });
     } else {
-        //console.log(project instanceof Project); // true
-        //console.log(project.title); // 'My Title'
         res.json({
             status: true,
             data: group
