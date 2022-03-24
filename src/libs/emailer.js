@@ -6,8 +6,8 @@ const createTrans = () => {
         port: 465,
         secure: true,
         auth: {
-            user: 'mario.basilio.c@gmail.com', // generated ethereal user
-            pass: 'xfugkbpeirqhrrun', // generated ethereal password
+            user: 'torres.gilson99@gmail.com', 
+            pass: 'arinaxdwzopforaz', 
         },
         tls: {
             rejectUnauthorized: false

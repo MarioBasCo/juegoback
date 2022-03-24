@@ -47,8 +47,8 @@ exports.getOne = async (req, res) => {
 exports.getOneSearch = async (req, res) => {
     const { codigo } = req.params;
     try {
-        const quizz = await Cuestionario.findOne({where: { codigo: codigo }});
-        
+        const quizz = await Cuestionario.findOne({ where: { codigo: codigo } });
+
         if (quizz === null) {
             res.json({
                 status: false,
@@ -80,8 +80,8 @@ exports.getOneSearch = async (req, res) => {
                 message: 'cuestionario encontrado',
                 data: quizzFull
             });
-        }  
-        
+        }
+
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
@@ -92,7 +92,8 @@ exports.getAllByUserID = async (req, res) => {
     const { userId } = req.params;
     try {
         const quizz = await Cuestionario.findAll({
-            where: { userId: userId, 
+            where: {
+                userId: userId,
                 estado: {
                     [Op.not]: 'E'
                 }
@@ -134,24 +135,46 @@ exports.createCuestionario = (req, res) => {
 
 exports.updateParamQuizz = (req, res) => {
     const { cuestionarioId } = req.params;
-    const { codigo, num_preguntas, estado } = req.body;
-    Cuestionario.update({
-        codigo: codigo,
-        num_preguntas: num_preguntas,
-        estado: estado
-    }, {
-        where: {
-            cuestionarioId: cuestionarioId
-        }
-    }).then(result => {
-        res.json({
-            status: true,
-            message: 'Actualizado con éxito',
-            data: result
+    const { accion } = req.body;
+    if (accion == 'complete') {
+        const { codigo, num_preguntas, estado } = req.body;
+        Cuestionario.update({
+            codigo: codigo,
+            num_preguntas: num_preguntas,
+            estado: estado
+        }, {
+            where: {
+                cuestionarioId: cuestionarioId
+            }
+        }).then(result => {
+            res.json({
+                status: true,
+                message: 'Actualizado con éxito',
+                data: result
+            });
+        }).catch(err => {
+            res.status(500).json(err);
         });
-    }).catch(err => {
-        res.status(500).json(err);
-    });
+    } else if (accion == 'update') {
+        const { titulo, descripcion, fecha_disp } = req.body;
+        Cuestionario.update({
+            titulo: titulo,
+            descripcion: descripcion,
+            fecha_disp: fecha_disp,
+        }, {
+            where: {
+                cuestionarioId: cuestionarioId
+            }
+        }).then(result => {
+            res.json({
+                status: true,
+                message: 'Actualizado con éxito',
+                data: result
+            });
+        }).catch(err => {
+            res.status(500).json(err);
+        });
+    } 
 }
 
 exports.deleteQuizz = async (req, res) => {
@@ -165,7 +188,7 @@ exports.deleteQuizz = async (req, res) => {
             });
         } else {
             quizz.estado = 'E',
-            quizz.save();
+                quizz.save();
             res.json({
                 status: true,
                 message: 'Cuestionario eliminado',

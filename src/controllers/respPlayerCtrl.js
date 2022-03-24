@@ -49,7 +49,8 @@ exports.validateResolve = async (req, res) => {
             jugadorId,
             cuestionarioId,
         } = req.params;
-    
+        
+
         const quizzPlayer = await QuizzPlayer.findOne({
             where: { estado: 'A', jugadorId: jugadorId, cuestionarioId: cuestionarioId },
         });
@@ -80,7 +81,7 @@ exports.createNew = async (req, res) => {
             respuestasJugador,
         } = req.body;
 
-        QuizzPlayer.create({
+        await QuizzPlayer.create({
             jugadorId: jugadorId,
             cuestionarioId: cuestionarioId,
             respuestas: respuestasJugador
@@ -89,7 +90,31 @@ exports.createNew = async (req, res) => {
                 model: QuestionAnswer,
                 as: 'respuestas'
             }]
-        }).then(p => {
+        }).then(async p => {
+            const quizz = await Cuestionario.findOne({
+                where: { estado: 'A', cuestionarioId: p.cuestionarioId },
+            });
+
+            const answers = await QuestionAnswer.findAll({
+                where: { estado: 'A', quizzPlayerId: p.quizzPlayerId },
+                include: {
+                    model: Respuesta,
+                    as: "respuestas",
+                    attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
+                    where: { estado: 'A', respuestaId: Sequelize.col('QuestionAnswer.respuestaId') },
+                }
+            });
+
+            const valorRespuesta = answers.map(d => d.respuestas).map(v => v.valor); // Respuestas del usuario
+            const respCorrectas = valorRespuesta.filter(i => i === true).length; //respuestas correctas
+            const num_preguntas = quizz.num_preguntas;
+            const ponderacion = 10;
+            const preguntas = num_preguntas - 1; //Sin el comodín
+            const valorPorPreg = ponderacion / preguntas;
+            const nota = respCorrectas * valorPorPreg;
+            p.calificacion = nota;
+            p.porcentaje = (respCorrectas*100)/preguntas;
+            p.save()
             res.json({
                 status: true,
                 message: 'Info Creada',

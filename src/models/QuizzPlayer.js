@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false
       },
+      porcentaje: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0
+      },
       estado: {
         type: DataTypes.STRING(1),
         defaultValue: 'A'

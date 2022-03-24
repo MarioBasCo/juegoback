@@ -22,6 +22,10 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
+      porcentaje: {
+        type: Sequelize.FLOAT,
+        defaultValue: 0
+      },
       estado: {
         type: Sequelize.STRING(1),
         defaultValue: 'A'
