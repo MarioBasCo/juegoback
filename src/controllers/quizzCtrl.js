@@ -29,14 +29,17 @@ exports.getOne = async (req, res) => {
                 as: "preguntas",
                 attributes: { exclude: ['preguntaId', 'cuestionarioId', 'estado', 'createdAt', 'updatedAt'] },
                 where: { estado: 'A' },
+                required: false,
                 include: {
                     model: Respuesta,
                     as: "respuestas",
                     attributes: { exclude: ['respuestaId', 'preguntaId', 'estado', 'createdAt', 'updatedAt'] },
                     where: { estado: 'A' },
+                    required: false,
                 }
             }
         });
+        console.log(quizz)
         res.json(quizz);
     } catch (error) {
         console.log(error);

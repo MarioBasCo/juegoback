@@ -29,7 +29,7 @@ exports.getAnswerPlayer = async (req, res) => {
         const num_preguntas = quizzPlayer.num_preguntas;
         const ponderacion = 10;
         const preguntas = num_preguntas - 1;
-        const valorPorPreg = (ponderacion / preguntas).toFixed(2);
+        const valorPorPreg = ponderacion / preguntas;
         const nota = respCorrectas * valorPorPreg;
         
         res.json({

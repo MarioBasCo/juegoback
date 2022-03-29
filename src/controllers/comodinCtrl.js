@@ -18,7 +18,7 @@ exports.createNew = async (req, res) => {
                 comodin: true,
             }, {
                 where: {
-                    quizzPlayerId: quizzPlayerId
+                    quizzPlayerId: p.quizzPlayerId
                 }
             }).then(result => {
                 res.json({
@@ -27,15 +27,21 @@ exports.createNew = async (req, res) => {
                     data: p
                 });
             }).catch(err => {
+                console.log(error);
                 res.status(500).json(err);
-            });
+            }); 
+            /* res.json({
+                status: true,
+                message: 'Info Creada',
+                data: p
+            }); */
         }).catch(err => {
             console.log(err);
             res.status(500).json({
-                status: true,
+                status: false,
                 message: 'Error al crear',
                 err
-            });
+            }); 
         });
     } catch (error) {
         console.log(error);
