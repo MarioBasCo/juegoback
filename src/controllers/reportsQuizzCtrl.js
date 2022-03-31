@@ -26,6 +26,7 @@ exports.getResultQuizz = async (req, res) => {
                     as: 'respuestas',
                     where: { estado: 'A' },
                     attributes: [],
+                    required: false,
                     include: [
                         {
                             model: Respuesta,
@@ -34,7 +35,7 @@ exports.getResultQuizz = async (req, res) => {
                             where: { estado: 'A', valor: true },
                         },
                     ],
-                    group: ['quizzPlayerId'],
+                    //group: ['quizzPlayerId'],
                 },
                 
                 /* {

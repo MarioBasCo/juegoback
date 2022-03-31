@@ -8,4 +8,5 @@ router.get('/:cuestionarioId/:jugadorId', ansPlayerCtrl.validateResolve);
 router.post('/', ansPlayerCtrl.createNew);
 router.post('/comodin/', comodinCtrl.createNew);
 
+
 module.exports = router;
