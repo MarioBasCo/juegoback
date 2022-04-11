@@ -95,9 +95,9 @@ exports.forgotPassword = async (req, res) => {
         });
         
         if (!user) {
-            res.status(404).json({
+            res.json({
                 status: false,
-                mensaje: "Usuario no registrado"
+                message: "Usuario no registrado"
             });
         } else {        
             const codigo = generarCode();
@@ -106,7 +106,7 @@ exports.forgotPassword = async (req, res) => {
                 
             const body = `
                 <h4>Saludos Cordiales</h4>
-                <p>Hola 🖐 usted ha solicitado cambiar la contraseña debido a que perdió su contraseña anterior.</p>
+                <p>Hola 🖐 usted ha solicitado cambiar la contraseña debido a que olvidó su contraseña anterior.</p>
                 <p>Por favor ingrese el siguiente código que solicita la aplicación: <b>${codigo}</b> </p>
                 <p>El tiempo de duración del código es: <b>${tiempoExpiracion}</b></p>
             `;
@@ -115,7 +115,7 @@ exports.forgotPassword = async (req, res) => {
             
             res.json({
                 status: true,
-                mensaje: "Se ha enviado un código de verficación a su correo"
+                message: "Se ha enviado un código de verficación a su correo"
             });
         }
     } catch (error) {

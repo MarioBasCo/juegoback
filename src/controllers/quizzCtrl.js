@@ -1,6 +1,7 @@
 const { Cuestionario, Usuario, Pregunta, Respuesta, Sequelize, sequelize } = require('../models/index');
 //const users = await User.findAll();
 const Op = Sequelize.Op;
+const moment = require('moment');
 
 exports.getAll = async (req, res) => {
     try {
@@ -58,31 +59,42 @@ exports.getOneSearch = async (req, res) => {
                 message: 'No se encontró el cuestionario, código incorrecto',
             });
         } else {
-            const quizzFull = await Cuestionario.findOne({
-                where: { codigo: codigo },
-                include: {
-                    model: Pregunta,
-                    as: "preguntas",
-                    attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
-                    where: { estado: 'A' },
-                    order: sequelize.random(), limit: quizz.num_preguntas,
+            //Reseteamos las fechas para que no se tome en cuenta las horas
+            const hoy = new Date(moment(new Date()).format('MM/DD/YYYY'));
+            const fquizz = new Date(moment(quizz.fecha_disp).format('MM/DD/YYYY'));
+            if (!(hoy.getTime() <= fquizz.getTime())) {
+                res.json({
+                    status: false,
+                    message: 'El cuestionionario no está disponible',
+                    data: null
+                });
+            } else {
+                const quizzFull = await Cuestionario.findOne({
+                    where: { codigo: codigo },
                     include: {
-                        model: Respuesta,
-                        as: "respuestas",
-                        attributes: { exclude: ['valor', 'estado', 'createdAt', 'updatedAt'] },
-                        order: sequelize.random(), limit: await Respuesta.count({
-                            col: 'preguntaId',
-                            where: { preguntaId: "preguntaId" }
-                        }),
+                        model: Pregunta,
+                        as: "preguntas",
+                        attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
                         where: { estado: 'A' },
-                    }
-                },
-            });
-            res.json({
-                status: true,
-                message: 'cuestionario encontrado',
-                data: quizzFull
-            });
+                        order: sequelize.random(), limit: quizz.num_preguntas,
+                        include: {
+                            model: Respuesta,
+                            as: "respuestas",
+                            attributes: { exclude: ['valor', 'estado', 'createdAt', 'updatedAt'] },
+                            order: sequelize.random(), limit: await Respuesta.count({
+                                col: 'preguntaId',
+                                where: { preguntaId: "preguntaId" }
+                            }),
+                            where: { estado: 'A' },
+                        }
+                    },
+                });
+                res.json({
+                    status: true,
+                    message: 'cuestionario encontrado',
+                    data: quizzFull
+                });
+            }
         }
 
     } catch (error) {
@@ -97,9 +109,10 @@ exports.getAllByUserID = async (req, res) => {
         const quizz = await Cuestionario.findAll({
             where: {
                 userId: userId,
-                estado: {
+                estado: 'A'
+                /* estado: {
                     [Op.not]: 'E'
-                }
+                } */
             },
             /* include: {
                 model: Usuario,
@@ -177,7 +190,7 @@ exports.updateParamQuizz = (req, res) => {
         }).catch(err => {
             res.status(500).json(err);
         });
-    } 
+    }
 }
 
 exports.deleteQuizz = async (req, res) => {
