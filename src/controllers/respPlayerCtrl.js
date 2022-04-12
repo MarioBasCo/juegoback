@@ -81,7 +81,7 @@ exports.createNew = async (req, res) => {
             respuestasJugador,
         } = req.body;
 
-        await QuizzPlayer.create({
+        const p = await QuizzPlayer.create({
             jugadorId: jugadorId,
             cuestionarioId: cuestionarioId,
             respuestas: respuestasJugador
@@ -90,43 +90,35 @@ exports.createNew = async (req, res) => {
                 model: QuestionAnswer,
                 as: 'respuestas'
             }]
-        }).then(async p => {
-            const quizz = await Cuestionario.findOne({
-                where: { estado: 'A', cuestionarioId: p.cuestionarioId },
-            });
+        });
+        const quizz = await Cuestionario.findOne({
+            where: { estado: 'A', cuestionarioId: p.cuestionarioId },
+        });
 
-            const answers = await QuestionAnswer.findAll({
-                where: { estado: 'A', quizzPlayerId: p.quizzPlayerId },
-                include: {
-                    model: Respuesta,
-                    as: "respuestas",
-                    attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
-                    where: { estado: 'A', respuestaId: Sequelize.col('QuestionAnswer.respuestaId') },
-                }
-            });
+        const answers = await QuestionAnswer.findAll({
+            where: { estado: 'A', quizzPlayerId: p.quizzPlayerId },
+            include: {
+                model: Respuesta,
+                as: "respuestas",
+                attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
+                where: { estado: 'A', respuestaId: Sequelize.col('QuestionAnswer.respuestaId') },
+            }
+        });
 
-            const valorRespuesta = answers.map(d => d.respuestas).map(v => v.valor); // Respuestas del usuario
-            const respCorrectas = valorRespuesta.filter(i => i === true).length; //respuestas correctas
-            const num_preguntas = quizz.num_preguntas;
-            const ponderacion = 10;
-            const preguntas = num_preguntas - 1; //Sin el comodín
-            const valorPorPreg = ponderacion / preguntas;
-            const nota = respCorrectas * valorPorPreg;
-            p.calificacion = nota;
-            p.porcentaje = (respCorrectas*100)/preguntas;
-            p.save()
-            res.json({
-                status: true,
-                message: 'Info Creada',
-                data: p
-            });
-        }).catch(err => {
-            console.log(err);
-            res.status(500).json({
-                status: true,
-                message: 'Error al crear',
-                err
-            });
+        const valorRespuesta = answers.map(d => d.respuestas).map(v => v.valor); // Respuestas del usuario
+        const respCorrectas = valorRespuesta.filter(i => i === true).length; //respuestas correctas
+        const num_preguntas = quizz.num_preguntas;
+        const ponderacion = 10;
+        const preguntas = num_preguntas - 1; //Sin el comodín
+        const valorPorPreg = ponderacion / preguntas;
+        const nota = respCorrectas * valorPorPreg;
+        p.calificacion = nota;
+        p.porcentaje = (respCorrectas*100)/preguntas;
+        p.save();
+        res.json({
+            status: true,
+            message: 'Info Creada',
+            data: p
         });
     } catch (error) {
         console.log(error);

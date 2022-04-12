@@ -35,6 +35,23 @@ exports.getInfo = async (req, res) => {
             },
         });
 
+        const comodin = await QuizzPlayer.findAll({
+            attributes: [
+                'comodin',
+            ],
+            include: [
+                {
+                    model: Cuestionario,
+                    as: 'cuestionario',
+                    attributes: [],
+                    where: { userId: userId, estado: 'A' }
+                },
+            ],
+            raw: true,
+        });
+        const useComodin = comodin.filter(d => d.comodin == true).length;
+        console.log(useComodin, comodin.length);
+        const mediaComodin = (useComodin/comodin.length)*100; 
         res.json({
             cuestionarios: quizz,
             grupos: {
@@ -42,6 +59,7 @@ exports.getInfo = async (req, res) => {
                 total_estudiantes: cantidadEstudiantes
             },
             cuestionarios_resueltos: quizzPlayer,
+            porcentajeComodin: mediaComodin
         });
     } catch (error) {
         console.log(error);
