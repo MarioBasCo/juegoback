@@ -4,8 +4,8 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Usuario extends Model {
     static associate(models) {
-      //Usuario.belongsTo(models.Recuperar,{foreingKey: "userId"});
-      this.hasMany(models.Recuperar, {foreingKey: "userId"});
+      //this.hasMany(models.Recuperar, {foreingKey: 'userId'});
+      //this.hasMany(models.Recuperar, { foreingKey: 'userId', as: 'passwordLog' });
       //this.hasMany(models.Grupo, {foreingKey: "userId"});
       //models.Recuperar.hasMany(Usuario,{foreingKey: "userId"});
     }

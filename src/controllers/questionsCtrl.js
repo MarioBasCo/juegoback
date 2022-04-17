@@ -1,6 +1,6 @@
 const { Pregunta, Respuesta } = require('../models/index');
 
-exports.createQuestion = (req, res) => {
+exports.createQuestion = async (req, res) => {
     try {
         let img = '';
         if (req.file && req.file.filename) {
@@ -8,7 +8,7 @@ exports.createQuestion = (req, res) => {
         }
         let resp = req.body.respuestas;
 
-        Pregunta.create({
+        const pregunta = await Pregunta.create({
             cuestionarioId: req.body.cuestionarioId,
             titulo: req.body.titulo,
             img: img,
@@ -18,12 +18,15 @@ exports.createQuestion = (req, res) => {
                 model: Respuesta,
                 as: 'respuestas'
             }]
-        }).then(p => {
-            res.json(p);
-        }).catch(err => {
-            console.log(err);
-            res.status(500).json(err);
         });
+        if(!pregunta){
+            res.json({
+                message : 'No se pudo guardar la pregunta'
+            });
+        } else {
+            res.json(pregunta);
+        }
+        
     } catch (error) {
         console.log(error);
         res.status(500).send(error);

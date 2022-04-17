@@ -88,40 +88,74 @@ exports.createNew = async (req, res) => {
         }, {
             include: [{
                 model: QuestionAnswer,
-                as: 'respuestas'
+                as: 'respuestas',
             }]
         });
-        const quizz = await Cuestionario.findOne({
-            where: { estado: 'A', cuestionarioId: p.cuestionarioId },
-        });
-
-        const answers = await QuestionAnswer.findAll({
-            where: { estado: 'A', quizzPlayerId: p.quizzPlayerId },
-            include: {
-                model: Respuesta,
-                as: "respuestas",
-                attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
-                where: { estado: 'A', respuestaId: Sequelize.col('QuestionAnswer.respuestaId') },
-            }
-        });
-
-        const valorRespuesta = answers.map(d => d.respuestas).map(v => v.valor); // Respuestas del usuario
-        const respCorrectas = valorRespuesta.filter(i => i === true).length; //respuestas correctas
-        const num_preguntas = quizz.num_preguntas;
-        const ponderacion = 10;
-        const preguntas = num_preguntas - 1; //Sin el comodín
-        const valorPorPreg = ponderacion / preguntas;
-        const nota = respCorrectas * valorPorPreg;
-        p.calificacion = nota;
-        p.porcentaje = (respCorrectas*100)/preguntas;
-        p.save();
-        res.json({
-            status: true,
-            message: 'Info Creada',
-            data: p
-        });
+        if(p) {
+            /* const quizz = await Cuestionario.findOne({
+                where: { estado: 'A', cuestionarioId: p.cuestionarioId },
+            });
+    
+            const answers = await QuestionAnswer.findAll({
+                where: { estado: 'A', quizzPlayerId: p.quizzPlayerId },
+                include: {
+                    model: Respuesta,
+                    as: "respuestas",
+                    attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
+                    where: { estado: 'A', respuestaId: Sequelize.col('QuestionAnswer.respuestaId') },
+                }
+            });
+    
+            const valorRespuesta = answers.map(d => d.respuestas).map(v => v.valor); // Respuestas del usuario
+            const respCorrectas = valorRespuesta.filter(i => i === true).length; //respuestas correctas
+            const num_preguntas = quizz.num_preguntas;
+            const ponderacion = 10;
+            const preguntas = num_preguntas - 1; //Sin el comodín
+            const valorPorPreg = ponderacion / preguntas;
+            const nota = respCorrectas * valorPorPreg;
+            p.calificacion = nota;
+            p.porcentaje = (respCorrectas*100)/preguntas;
+            await p.save(); */
+            const {nota, porcentaje} = await calcularNota(p);
+            console.log(nota, porcentaje);
+            p.porcentaje = porcentaje;
+            p.calificacion = nota;
+            await p.save();
+            res.json({
+                status: true,
+                message: 'Info Creada',
+                data: p
+            });
+        }
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
     }
+}
+
+const calcularNota = async (p) => {
+    const quizz = await Cuestionario.findOne({
+        where: { estado: 'A', cuestionarioId: p.cuestionarioId },
+    });
+
+    const answers = await QuestionAnswer.findAll({
+        where: { estado: 'A', quizzPlayerId: p.quizzPlayerId },
+        include: {
+            model: Respuesta,
+            as: "respuestas",
+            attributes: { exclude: ['estado', 'createdAt', 'updatedAt'] },
+            where: { estado: 'A', respuestaId: Sequelize.col('QuestionAnswer.respuestaId') },
+        }
+    });
+
+    const valorRespuesta = answers.map(d => d.respuestas).map(v => v.valor); // Respuestas del usuario
+    const respCorrectas = valorRespuesta.filter(i => i === true).length; //respuestas correctas
+    const num_preguntas = quizz.num_preguntas;
+    const ponderacion = 10;
+    const preguntas = num_preguntas - 1; //Sin el comodín
+    const valorPorPreg = ponderacion / preguntas;
+    const nota = respCorrectas * valorPorPreg;
+    const porcentaje = (respCorrectas*100)/preguntas;
+
+    return {nota, porcentaje}
 }
