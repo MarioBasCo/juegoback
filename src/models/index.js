@@ -16,13 +16,13 @@ let sequelize = new Sequelize(
     dialect: config.dialect,
     dialectOptions: {
       dateStrings: true,
-      timezone: 'utc',
-      typeCast: (field, next) => {
+      useUTC: false,
+      /* typeCast: (field, next) => {
         if (field.type === "DATETIME") {
           return field.string();
         }
         return next();
-      },
+      }, */
     },
     timezone: "-05:00",
   }
