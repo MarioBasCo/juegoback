@@ -24,7 +24,7 @@ let sequelize = new Sequelize(
         return next();
       },
     },
-    timezone: "-05:00",
+    timezone: "utc",
   }
 );
 
