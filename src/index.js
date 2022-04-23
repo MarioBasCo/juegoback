@@ -2,9 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const { sequelize } = require('./models/index');
-//const Moment = require('moment-timezone');
+const Moment = require('moment-timezone');
 const path = require('path');
-//Moment().tz('America/Guayaquil').format();
+Moment().tz('America/Guayaquil').format();
 
 app.set('port', process.env.PORT || 4000);
 

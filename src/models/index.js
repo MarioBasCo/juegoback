@@ -15,14 +15,14 @@ let sequelize = new Sequelize(
     host: config.host,
     dialect: config.dialect,
     dialectOptions: {
-      dateStrings: true,
+      dateStrings: true, 
       useUTC: false,
-      /* typeCast: (field, next) => {
-        if (field.type === "DATETIME") {
+      typeCast: (field, next) => {
+        if (field.type == "DATETIME") {
           return field.string();
         }
         return next();
-      }, */
+      },
     },
     timezone: "-05:00",
   }
