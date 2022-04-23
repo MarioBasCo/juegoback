@@ -16,6 +16,7 @@ let sequelize = new Sequelize(
     dialect: config.dialect,
     dialectOptions: {
       dateStrings: true,
+      timezone: 'utc',
       typeCast: (field, next) => {
         if (field.type === "DATETIME") {
           return field.string();
